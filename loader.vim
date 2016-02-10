@@ -1,18 +1,30 @@
 let s:fdir=expand("<sfile>:p:h")
+
 function loader#load(name)
   let l:pyname = s:fdir . '/loader.py'
   python3 << ENDPYTHON
     
 import vim, os
+from itertools import chain 
 
-def loader_getchilddirs(d):
+def loader_getchilddirs(d, names):
   """ get specified child directory against d(direcotry) """
-  names = ["plugin", "autoload"]
   return [p
     for n in names
       for p in [os.path.join(d, n)] # temporary variable
         if os.path.isdir(p)]
-  
+
+def loader_getsourcedirs(d):
+  """ get vim script directories """
+  return loader_getchilddirs(d, ["plugin", "autoload"])
+
+def loader_getdocdirs(d):
+  """ get document directory named "doc" """
+  return loader_getchilddirs(d, ["doc"])
+
+def loader_genhelptags(ds):
+  """ registry document directory """
+  map(lambda p: vim.command("helptags {}".format(p)), ds)
 
 def loader_getsources(d):
   """ get vim script source files from d(directory)"""
@@ -34,9 +46,10 @@ def loader_load(name):
       if os.path.isdir(p) and (name in os.listdir(p))]
   fs = [f
     for d in dirpathes
-      for c in loader_getchilddirs(d)
+      for c in loader_getsourcedirs(d)
         for f in loader_getsources(c)]
   loader_loadsources(fs)
+  # loader_genhelptags(chain.from_iterable([loader_getdocdirs(d) for d in dirpathes]))
 
 ENDPYTHON
   python3 loader_load(vim.eval('a:name'))
