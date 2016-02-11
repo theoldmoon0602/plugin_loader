@@ -4,7 +4,7 @@ function loader#load(name)
   let l:pyname = s:fdir . '/loader.py'
   python3 << ENDPYTHON
     
-import vim, os
+import vim, os, sys
 from itertools import chain 
 
 def loader_getchilddirs(d, names):
@@ -54,6 +54,9 @@ def loader_load(name):
   plugindirs = [os.path.join(p, name)
     for p in rtp
       if os.path.isdir(p) and (name in os.listdir(p))]
+  if not plugindirs:
+    sys.stderr.write("Plugin directory not found: {}\n".format(name))
+
   for p in plugindirs:
     [loader_genhelptags(d) for d in loader_getdocdirs(p)]
     loader_append_to_rtp(p)
