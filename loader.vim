@@ -37,19 +37,26 @@ def loader_loadsources(fs):
   for f in fs:
     vim.command('source {}'.format(f))
 
+def loader_prepend_to_rtp(p):
+  """ add a plugin path to runtimepath head """
+  if os.path.isdir(p):
+    vim.command('set rtp^=' + p)
+
+def loader_append_to_rtp(p):
+  """ add a plugin path to runtimepath last """
+  if os.path.isdir(p):
+    vim.command('set rtp+=' + p)
+
 def loader_load(name):
   """ load vim plugin """
-  rtp = [os.path.normpath(p.rstrip('after')) for p in vim.eval("&rtp").split(",")]
+  rtp = [os.path.normpath(p) for p in vim.list_runtime_paths()]
   rtp = list(set(rtp))
-  dirpathes = [os.path.join(p, name)
+  plugindirs = [os.path.join(p, name)
     for p in rtp
       if os.path.isdir(p) and (name in os.listdir(p))]
-  fs = [f
-    for d in dirpathes
-      for c in loader_getsourcedirs(d)
-        for f in loader_getsources(c)]
-  loader_loadsources(fs)
-  # loader_genhelptags(chain.from_iterable([loader_getdocdirs(d) for d in dirpathes]))
+  for p in plugindirs:
+    [loader_genhelptags(d) for d in loader_getdocdirs(p)]
+    loader_append_to_rtp(p)
 
 ENDPYTHON
   python3 loader_load(vim.eval('a:name'))
