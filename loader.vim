@@ -1,6 +1,8 @@
 let s:fdir=expand("<sfile>:p:h")
 
-function loader#load(name)
+command! -nargs=1 LoadPlugin <args>
+
+function! loader#load(name)
   let l:pyname = s:fdir . '/loader.py'
   python3 << ENDPYTHON
     
