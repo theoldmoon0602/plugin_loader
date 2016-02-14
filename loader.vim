@@ -18,13 +18,13 @@ import vim, os, sys, subprocess
 
 def loader_append_to_rtp(p):
   """ add a plugin path to runtimepath last """
+  print("ADD: " + p)
   if os.path.isdir(p):
     vim.command('set rtp+=' + p)
 
 def loader_load_local_plugin(name):
   """ load local vim plugin -- add plugin path to runtimepath """
-  rtp = [os.path.normpath(p) for p in vim.list_runtime_paths()]
-  rtp = list(set(rtp))
+  rtp = [vim.eval("g:loader#dir")] + [os.path.normpath(p) for p in vim.list_runtime_paths()]
   plugindirs = [os.path.join(p, name)
     for p in rtp
       if os.path.isdir(p) and (name in os.listdir(p))]
@@ -48,22 +48,22 @@ def loader_load(name):
   p = loader_parsename(name)
 
   if not p.pluginname:
-    vim.echoerr("Invalid Plugin Name : " + name)
+    vim.err_write("Invalid Plugin Name : " + name)
     return
 
   if loader_load_local_plugin(p.pluginname):
     return
 
   if not p.githuburl:
-    vim.echoerr("Failed to load : " + name)
+    vim.err_write("Failed to load : " + name)
     return
 
   if not loader_clone_from_github(p, vim.eval("g:loader#dir")):
-    vim.echoerr("Failed to clone from : " + p.githuburl)
+    vim.err_write("Failed to clone from : " + p.githuburl)
     return
 
   if not loader_load_local_plugin(p.pluginname):
-    vim.echoerr("Failed to load : " + name)
+    vim.err_write("Failed to load : " + name)
 
 def loader_parsename(name):
   """ parse given name to github url and repository name and plugin name """
@@ -82,10 +82,6 @@ def loader_parsename(name):
   from collections import namedtuple
   return namedtuple('PluginPath', ['githuburl', 'pluginname'])(githuburl, pluginname)
 ENDPYTHON
-
-function! loader#prepare()
-  execute "set rtp+=" . g:loader#dir
-endf
 
 " Function Definition
 function! loader#load(name)
