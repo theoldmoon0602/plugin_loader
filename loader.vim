@@ -18,7 +18,6 @@ import vim, os, sys, subprocess
 
 def loader_append_to_rtp(p):
   """ add a plugin path to runtimepath last """
-  print("ADD: " + p)
   if os.path.isdir(p):
     vim.command('set rtp+=' + p)
 
