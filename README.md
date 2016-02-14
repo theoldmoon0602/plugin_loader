@@ -15,4 +15,5 @@ call loader#load('{some vim plugin name}')
 ```
 # REQUIREMENTS
 
- Need Python3.
+ - Need Python3.
+ - Need Git Command.
