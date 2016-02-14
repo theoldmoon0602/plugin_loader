@@ -1,14 +1,16 @@
+" PluginLoader : A VimPlugin Loader & Downloader
+
+" Include Guard
 if exists('g:loader_loaded')
   finish
 endif
-
 let g:loader_loaded=1
-let s:fdir=expand("<sfile>:p:h")
 
+" Command Definitions
 command! -nargs=1 LoadPlugin <args>
 
+" Python Script
 python3 << ENDPYTHON
-    
 import vim, os, sys, subprocess
 from itertools import chain 
 
@@ -110,10 +112,9 @@ def loader_githubrepo_normalize(url):
   if re.match(r"[a-zA-Z0-9]+/[a-zA-Z0-9\.]+$", url) == None:
     return None
   return url
-  
 ENDPYTHON
 
-
+" Function Definition
 function! loader#load(name)
   python3 loader_load(vim.eval('a:name'))
 endf
